@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom'; 
+import { BACKEND_FOR_FRONTEND_HOST } from '../../Constants';
 
 export class ProductList extends Component {
   static displayName = ProductList.name;
@@ -18,11 +20,17 @@ export class ProductList extends Component {
           {products.map(product =>
             <div className="col-md-4" key={product.id}>
               <h2>{product.title}</h2>
-              <img className="product-image" src={product.imagePath} alt={product.title}/>
+              <img className="product-image" src={`${BACKEND_FOR_FRONTEND_HOST}${product.imagePath}`} alt={product.title}/>
               <div className="price">
                   <span className="price-tag">Price: </span>{product.price}
               </div>
-              <p><a className="btn btn-default" href={`/product/${product.id}`}>View</a></p>
+              <p>
+                <Link to={`/products/${product.id}`}>
+                    <button className="btn btn-default" type="button">
+                      View
+                    </button>
+                </Link>
+              </p>
             </div>
           )}
       </div>

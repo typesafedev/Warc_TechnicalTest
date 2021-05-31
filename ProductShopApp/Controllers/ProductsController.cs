@@ -31,7 +31,7 @@ namespace ProductShopApp.Controllers
 
         // POST api/<ProductsController>
         [HttpPost]
-        public async Task Post([FromBody] ProductDto product)
+        public async Task<IActionResult> Post([FromBody] ProductDto product)
         {
             var content = new StringContent(
                 JsonConvert.SerializeObject(product),
@@ -39,6 +39,7 @@ namespace ProductShopApp.Controllers
                 MediaTypeNames.Application.Json);
 
             await HttpService.Post($"api/product", content);
+            return Ok();
         }
     }
 }
