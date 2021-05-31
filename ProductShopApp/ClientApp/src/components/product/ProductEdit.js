@@ -1,30 +1,60 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Redirect } from "react-router-dom";
 
-export class ProductEdit extends Component {
-  static displayName = ProductEdit.name;
+export const ProductEdit = () => {
 
-  constructor(props) {
-    super(props);
-    this.state = { product: {}, loading: true, saved: false };
-    this.params = props.match.params;
+  const [ product, setProduct ] = useState({});
+  const [ loading, setLoading ] = useState(false);
+  const [ saved, setSaved ] = useState(false);
+  const { id } = useParams();
 
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleTitleChange = this.handleTitleChange.bind(this);
-    this.handleImagePathChange = this.handleImagePathChange.bind(this);
-    this.handlePriceChange = this.handlePriceChange.bind(this);
-    this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
+  useEffect(() => {
+    const populateProduct = async () => {
+      const response = await fetch(`api/products/${id}`);
+      const data = await response.json();
+      setProduct(data);
+      setLoading(false);
+    }
+  
+    populateProduct();
+  }, []);
+
+  const handleTitleChange = (event) => {
+    setProduct({...product, title: event.target.value});
+  };
+
+  const handleImagePathChange = (event) => {
+    setProduct({...product, imagePath: event.target.value});
+  };
+
+  const handlePriceChange = (event) => {
+    setProduct({...product, price: event.target.value});
+  };
+
+  const handleDescriptionChange = (event) => {
+    setProduct({...product, description: event.target.value});
+  };
+
+  const handleSubmit = async(event) => {
+    event.preventDefault();
+    await fetch('api/products', {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(product),
+    });
+
+    setSaved(true);
   }
 
-  componentDidMount() {
-    this.populateProduct();
-  }
-
-  renderProduct(product) {
+  const renderProduct = (product) => {
     return (
       <>
         <h1>Edit product</h1>
-        <form onSubmit={this.handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="row form-group">
             <div className="col-md-4">
               <label>{"Id"}</label>
@@ -38,7 +68,7 @@ export class ProductEdit extends Component {
               <label>{"Title"}</label>
             </div>
             <div className="col-md-8">
-              <input type="text" defaultValue={product.title} className="form-control" onChange={this.handleTitleChange} />
+              <input type="text" defaultValue={product.title} className="form-control" onChange={handleTitleChange} />
             </div>
           </div>
           <div className="row form-group">
@@ -46,7 +76,7 @@ export class ProductEdit extends Component {
               <label>{"ImagePath"}</label>
             </div>
             <div className="col-md-8">
-              <input type="text" defaultValue={product.imagePath} className="form-control" onChange={this.handleImagePathChange} />
+              <input type="text" defaultValue={product.imagePath} className="form-control" onChange={handleImagePathChange} />
             </div>
           </div>
           <div className="row form-group">
@@ -54,7 +84,7 @@ export class ProductEdit extends Component {
               <label>{"Price"}</label>
             </div>
             <div className="col-md-8">
-              <input type="text" defaultValue={product.price} className="form-control" onChange={this.handlePriceChange} />
+              <input type="text" defaultValue={product.price} className="form-control" onChange={handlePriceChange} />
             </div>
           </div>
           <div className="row form-group">
@@ -62,78 +92,28 @@ export class ProductEdit extends Component {
               <label>{"Description"}</label>
             </div>
             <div className="col-md-8">
-              <input type="text" defaultValue={product.description} className="form-control" onChange={this.handleDescriptionChange} />
+              <input type="text" defaultValue={product.description} className="form-control" onChange={handleDescriptionChange} />
             </div>
           </div>
           <div className="row form-group">
-            <input type="submit" value="Save" onSubmit={this.handleSubmit}/>
+            <input type="submit" value="Save" onSubmit={handleSubmit}/>
           </div>
         </form>
       </>
     );
   }
 
-  render() {
-    const contents = this.state.loading ? (
-      <p>
-        <em>Loading...</em>
-      </p>
-    ) : (
-      this.renderProduct(this.state.product)
-    );
+  const contents = loading ? (
+    <p>
+      <em>Loading...</em>
+    </p>
+  ) : (
+    renderProduct(product)
+  );
 
-    if (this.state.saved) {
-      return <Redirect to={`/products/${this.params.id}`} />;
-    }
-
-    return <>{contents}</>;
+  if (saved) {
+    return <Redirect to={`/products/${id}`} />;
   }
 
-  async populateProduct() {
-    const response = await fetch(`api/products/${this.params.id}`);
-    const data = await response.json();
-    this.setState({ product: data, loading: false });
-  }
-
-  handleTitleChange(event) {
-    this.setState({
-      product: { ...this.state.product, title: event.target.value },
-      loading: this.state.loading,
-    });
-  }
-
-  handleImagePathChange(event) {
-    this.setState({
-      product: { ...this.state.product, imagePath: event.target.value },
-      loading: this.state.loading,
-    });
-  }
-
-  handlePriceChange(event) {
-    this.setState({
-      product: { ...this.state.product, price: event.target.value },
-      loading: this.state.loading,
-    });
-  }
-
-  handleDescriptionChange(event) {
-    this.setState({
-      product: { ...this.state.product, description: event.target.value },
-      loading: this.state.loading,
-    });
-  }
-
-  async handleSubmit(event) {
-    event.preventDefault();
-    await fetch('api/products', {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(this.state.product),
-    });
-
-    this.setState({...this.state, saved: true});
-  }
+  return <>{contents}</>;
 }

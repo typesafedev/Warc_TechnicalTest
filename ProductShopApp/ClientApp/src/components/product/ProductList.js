@@ -1,53 +1,59 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom'; 
-import { BACKEND_FOR_FRONTEND_HOST } from '../../Constants';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { BACKEND_FOR_FRONTEND_HOST } from "../../Constants";
 
-export class ProductList extends Component {
-  static displayName = ProductList.name;
+export const ProductList = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  constructor(props) {
-    super(props);
-    this.state = { products: [], loading: true };
-  }
+  useEffect(() => {
+    const populateProducts = async () => {
+      const response = await fetch("api/products");
+      const data = await response.json();
+      setProducts(data);
+      setLoading(false);
+    };
 
-  componentDidMount() {
-    this.populateProducts();
-  }
+    populateProducts();
+  }, []);
 
-  renderProducts(products) {
+  const renderProducts = (products) => {
     return (
       <div className="row">
-          {products.map(product =>
-            <div className="col-md-4" key={product.id}>
-              <h2>{product.title}</h2>
-              <img className="product-image" src={`${BACKEND_FOR_FRONTEND_HOST}${product.imagePath}`} alt={product.title}/>
-              <div className="price">
-                  <span className="price-tag">Price: </span>{product.price}
-              </div>
-              <p>
-                <Link to={`/products/${product.id}`}>
-                    <button className="btn btn-default" type="button">
-                      View
-                    </button>
-                </Link>
-              </p>
+        {products.map((product) => (
+          <div className="col-md-4" key={product.id}>
+            <h2>{product.title}</h2>
+            <img className="product-image" src={`${BACKEND_FOR_FRONTEND_HOST}${product.imagePath}`} alt={product.title} />
+            <div className="price">
+              <span className="price-tag">Price: </span>
+              {product.price}
             </div>
-          )}
+            <Link className="row form-group" to={`/products/${product.id}`}>
+              <button className="btn btn-default" type="button">
+                View
+              </button>
+            </Link>
+          </div>
+        ))}
       </div>
     );
-  }
+  };
 
-  render() {
-    const contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-      : this.renderProducts(this.state.products);
-    
-    return (<>{contents}</>);
-  }
+  const contents = loading ? (
+    <p>
+      <em>Loading...</em>
+    </p>
+  ) : (
+    renderProducts(products)
+  );
 
-  async populateProducts() {
-    const response = await fetch('api/products');
-    const data = await response.json();
-    this.setState({ products: data, loading: false });
-  }
-}
+  return (
+    <>
+      <div class="jumbotron">
+        <h1>Product Shop</h1>
+        <p>The best place to buy products</p>
+      </div>
+      {contents}
+    </>
+  );
+};

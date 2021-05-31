@@ -1,51 +1,50 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom'; 
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-export class ProductView extends Component {
-  static displayName = ProductView.name;
+export const ProductView = () => {
+  const [product, setProduct] = useState({});
+  const [loading, setLoading] = useState(false);
+  const { id } = useParams();
 
-  constructor(props) {
-    super(props);
-    this.state = { product: {}, loading: true };
-    ( this.params ) = props.match.params;
-  }
+  useEffect(() => {
+    const populateProduct = async () => {
+      const response = await fetch(`api/products/${id}`);
+      const data = await response.json();
+      setProduct(data);
+      setLoading(false);
+    };
 
-  componentDidMount() {
-    this.populateProduct();
-  }
+    populateProduct();
+  }, []);
 
-  renderProduct(product) {
+  const renderProduct = (product) => {
     return (
       <div className="row">
         <div className="col-md-8">
           <h2>{product.title}</h2>
           <img className="product-image" src={product.imagePath} alt={product.title} />
-          <div className="price" >
-            <span className="price-tag">Price: </span>{product.price}
+          <div className="price">
+            <span className="price-tag">Price: </span>
+            {product.price}
           </div>
-          <p>
-            <Link to={`/products/edit/${product.id}`}>
-              <button className="btn btn-default" type="button">
-                Edit
-              </button>
-            </Link>
-          </p>
+          <Link className="row form-group" to={`/products/edit/${product.id}`}>
+            <button className="btn btn-default" type="button">
+              Edit
+            </button>
+          </Link>
         </div>
       </div>
     );
-  }
+  };
 
-  render() {
-    const contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-      : this.renderProduct(this.state.product);
-    
-    return (<>{contents}</>);
-  }
+  const contents = loading ? (
+    <p>
+      <em>Loading...</em>
+    </p>
+  ) : (
+    renderProduct(product)
+  );
 
-  async populateProduct() {
-    const response = await fetch(`api/products/${this.params.id}`);
-    const data = await response.json();
-    this.setState({ product: data, loading: false });
-  }
-}
+  return <>{contents}</>;
+};
