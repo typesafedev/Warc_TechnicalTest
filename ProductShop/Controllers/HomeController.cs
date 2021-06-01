@@ -1,6 +1,5 @@
 ﻿using System.Web.Mvc;
 using ProductShop.Models;
-using ProductShopBusinessLayer;
 using ProductShopDataObjects.Classes;
 
 namespace ProductShop.Controllers
@@ -9,11 +8,8 @@ namespace ProductShop.Controllers
     {
         private readonly IProductProvider _productProvider;
 
-        public HomeController()
-        {
-            _productProvider = new ProductProvider();
-        }
-
+        public HomeController(IProductProvider productProvider) =>
+            _productProvider = productProvider;
 
         public ActionResult Index()
         {

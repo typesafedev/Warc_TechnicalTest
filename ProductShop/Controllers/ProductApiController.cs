@@ -1,20 +1,17 @@
 ﻿using System.Net;
 using System.Web.Mvc;
 using ProductShop.Models;
-using ProductShopBusinessLayer;
 using ProductShopBusinessLayer.Classes;
 using ProductShopDataObjects.Classes;
 
 namespace ProductShop.Controllers
-{ 
+{
     public class ProductApiController : Controller
     {
         private readonly IProductProvider _productProvider;
 
-        public ProductApiController()
-        {
-            _productProvider = new ProductProvider();
-        }
+        public ProductApiController(IProductProvider productProvider) =>
+            _productProvider = productProvider;
 
         [HttpGet]
         [Route("api/product")]
