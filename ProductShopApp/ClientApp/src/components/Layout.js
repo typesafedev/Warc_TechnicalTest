@@ -1,6 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Container } from 'reactstrap';
 import { NavMenu } from './NavMenu';
+
+const year = () => {
+  const d = new Date();
+  return d.getFullYear();
+};
 
 export const Layout = ({children}) => {
     return (
@@ -9,6 +14,9 @@ export const Layout = ({children}) => {
         <Container className="body-content">
           {children}
           <hr />
+          <footer>
+            <p>&copy;{`${year()} Product Shop`}</p>
+          </footer>
         </Container>
       </div>
     );
